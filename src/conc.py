@@ -257,7 +257,7 @@ async def main(page: ft.Page):
     state = AppState()
 
     prefs = ft.SharedPreferences()
-    file_picker = None
+    file_picker = ft.FilePicker()
 
     def register_service(svc):
         if hasattr(page, 'services'):
@@ -269,14 +269,7 @@ async def main(page: ft.Page):
         page.overlay.append(svc)
 
     register_service(prefs)
-
-    def get_file_picker():
-        # Se crea en el primer uso: en Flet 1.x el servicio se registra solo
-        # al construirse dentro del contexto de la página.
-        nonlocal file_picker
-        if file_picker is None:
-            file_picker = ft.FilePicker()
-        return file_picker
+    register_service(file_picker)
 
     def safe_update():
         def _do():
@@ -799,7 +792,7 @@ async def main(page: ft.Page):
             kwargs["file_type"] = ft.FilePickerFileType.CUSTOM
             kwargs["allowed_extensions"] = [x.lstrip('.') for x in exts]
 
-        files = await get_file_picker().pick_files(**kwargs)
+        files = await file_picker.pick_files(**kwargs)
         if not files:
             return None
 
@@ -810,7 +803,7 @@ async def main(page: ft.Page):
         return path
 
     async def pick_dir(title: str):
-        return await get_file_picker().get_directory_path(dialog_title=title)
+        return await file_picker.get_directory_path(dialog_title=title)
 
     async def pick_visual_concat(e):
         path = await pick_file("Select Image or Video", IMAGE_EXTS + VIDEO_EXTS)
