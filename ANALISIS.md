@@ -107,10 +107,12 @@ La pestaña Combine escala y rellena siempre a 1920×1080. Para material vertica
 `.github/workflows/build.yml`:
 
 1. **check**: instala Flet 1.1.2, compila `src/conc.py` y ejecuta `scripts/check_flet_api.py`, que valida todos los símbolos `ft.*` usados.
-2. **build**: matriz con `windows-latest` (Windows 10/11 x64) y `ubuntu-22.04` (Linux x86_64), usando `flet-dev/flet-build-action@v1`.
+2. **build**: matriz con `windows-latest` (Windows 10/11 x64) y `ubuntu-22.04` (Linux x86_64). Instala `flet[cli]==1.1.2`, deja que Flet descargue Flutter y ejecuta `flet build`. En Linux instala antes las dependencias que publica `flet --version --json`. La salida se empaqueta con `scripts/archive.py`.
 3. **release**: en tags `v*`, descarga los artefactos y crea/actualiza la release.
 
 Windows 10 y 11 comparten el mismo binario x64. El artefacto Linux se compila en Ubuntu 22.04 para mantener una glibc más antigua y mejorar compatibilidad.
+
+Se usa el CLI directamente (en vez de `flet-dev/flet-build-action`) porque el action ejecuta `flet --version --json` antes de que `flet-cli` esté instalado en el entorno del proyecto; el CLI base de Flet 1.1.2 solo instala `flet-cli` de forma diferida y esa salida no es JSON válido para el action.
 
 ## Recomendaciones a corto plazo
 

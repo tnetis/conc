@@ -54,6 +54,7 @@ jobs:
             runner: windows-latest
             artifact: conc-windows-x86_64
             extension: .zip
+            archive_format: zip
 
           # Se compila en Ubuntu 22.04 para rebajar los requisitos de glibc.
           - name: Linux x86_64
@@ -61,30 +62,63 @@ jobs:
             runner: ubuntu-22.04
             artifact: conc-linux-x86_64
             extension: .tar.gz
+            archive_format: tar.gz
     steps:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Build with Flet
-        id: build
-        uses: flet-dev/flet-build-action@v1
+      - name: Set up Python
+        uses: actions/setup-python@v7
         with:
-          target: ${{ matrix.target }}
-          runner-python-version: "3.14"
-          bundled-python-version: "3.14"
-          build-number: ${{ github.run_number }}
+          python-version: "3.14"
+          cache: pip
 
-      - name: Give the archive a stable name
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v10
+
+      # Se instala el CLI completo: `flet` a secas no incluye flet-cli y el
+      # comando `flet build` no existiría.
+      - name: Install Flet CLI
         run: >-
-          python -c "import shutil, sys; shutil.copyfile(sys.argv[1], sys.argv[2])"
-          "${{ steps.build.outputs.archive-path }}"
-          "${{ matrix.artifact }}${{ matrix.extension }}"
+          python -m pip install --disable-pip-version-check
+          "flet[cli]==1.1.2"
+
+      - name: Show toolchain versions
+        run: flet --version
+
+      # La lista de paquetes la publica el propio CLI en
+      # `flet --version --json`; así no se queda desactualizada.
+      - name: Install Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          flet --version --json > flet-version.json
+          python -c "import json; print('\n'.join(json.load(open('flet-version.json', encoding='utf-8'))['linux_dependencies']))" > flet-linux-deps.txt
+          sudo apt-get update --allow-releaseinfo-change
+          sudo xargs -a flet-linux-deps.txt apt-get install -y --no-install-recommends
+          sudo apt-get clean
+          rm -f flet-version.json flet-linux-deps.txt
+
+      - name: Build with Flet
+        run: >-
+          flet build ${{ matrix.target }}
+          --yes
+          --verbose
+          --output build/${{ matrix.target }}
+          --python-version 3.14
+          --build-number ${{ github.run_number }}
+
+      - name: Create portable archive
+        run: >-
+          python scripts/archive.py ${{ matrix.archive_format }}
+          build/${{ matrix.target }}
+          ${{ matrix.artifact }}${{ matrix.extension }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.artifact }}
           path: ${{ matrix.artifact }}${{ matrix.extension }}
+          archive: false
           if-no-files-found: error
           retention-days: 30
 

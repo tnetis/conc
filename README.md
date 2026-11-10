@@ -99,9 +99,11 @@ conc/
 No necesitas instalar Flet ni Flutter en tu PC. El workflow `Build conc` hace todo:
 
 - **Check Python and Flet API**: instala Flet 1.1.2, compila `conc.py` y valida que todos los símbolos de Flet usados existan.
-- **Windows 10/11 x86_64**: `flet build windows` en `windows-latest`.
-- **Linux x86_64**: `flet build linux` en `ubuntu-22.04`.
+- **Windows 10/11 x86_64**: instala `flet[cli]`, descarga Flutter automáticamente y ejecuta `flet build windows` en `windows-latest`.
+- **Linux x86_64**: instala las dependencias de sistema que publica `flet --version --json`, descarga Flutter y ejecuta `flet build linux` en `ubuntu-22.04`.
 - **Publish GitHub Release**: solo en tags `v*`.
+
+Los jobs de compilación empaquetan la salida con `scripts/archive.py` (ZIP en Windows, tar.gz en Linux) y suben un único archivo por plataforma. La primera ejecución tarda más porque Flutter se descarga dentro del runner.
 
 El workflow se ejecuta al hacer push a `main`, en pull requests y manualmente con **Run workflow**.
 
