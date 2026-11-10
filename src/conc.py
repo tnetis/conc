@@ -241,8 +241,8 @@ class AppState:
 async def main(page: ft.Page):
     page.title = "conc"
     page.theme_mode = ft.ThemeMode.DARK
-    page.window.width = 460
-    page.window.height = 580
+    page.window.width = 430
+    page.window.height = 460
     page.bgcolor = "black"
 
     ui_loop = asyncio.get_running_loop()
