@@ -74,7 +74,7 @@ jobs:
           cache: pip
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v10
+        uses: astral-sh/setup-uv@v10.3.3
 
       # Se instala el CLI completo: `flet` a secas no incluye flet-cli y el
       # comando `flet build` no existiría.
