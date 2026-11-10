@@ -2006,6 +2006,17 @@ async def main(page: ft.Page):
 
     page.add(main_tabs, bottom_row)
 
+    # Flet 1.1.2 en Windows abre la ventana con su tamano por defecto e ignora
+    # width/height del primer update. Un update explicito del control Window
+    # aplica el tamano; despues la centramos.
+    page.window.width = 430
+    page.window.height = 460
+    page.window.update()
+
+    res = page.window.center()
+    if inspect.isawaitable(res):
+        await res
+
 
 if __name__ == "__main__":
     ft.run(main)
