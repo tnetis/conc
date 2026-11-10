@@ -257,7 +257,7 @@ async def main(page: ft.Page):
     state = AppState()
 
     prefs = ft.SharedPreferences()
-    file_picker = ft.FilePicker()
+    file_picker = None
 
     def register_service(svc):
         if hasattr(page, 'services'):
@@ -269,7 +269,14 @@ async def main(page: ft.Page):
         page.overlay.append(svc)
 
     register_service(prefs)
-    register_service(file_picker)
+
+    def get_file_picker():
+        # Se crea en el primer uso: en Flet 1.x el servicio se registra solo
+        # al construirse dentro del contexto de la página.
+        nonlocal file_picker
+        if file_picker is None:
+            file_picker = ft.FilePicker()
+        return file_picker
 
     def safe_update():
         def _do():
@@ -792,7 +799,7 @@ async def main(page: ft.Page):
             kwargs["file_type"] = ft.FilePickerFileType.CUSTOM
             kwargs["allowed_extensions"] = [x.lstrip('.') for x in exts]
 
-        files = await file_picker.pick_files(**kwargs)
+        files = await get_file_picker().pick_files(**kwargs)
         if not files:
             return None
 
@@ -803,7 +810,7 @@ async def main(page: ft.Page):
         return path
 
     async def pick_dir(title: str):
-        return await file_picker.get_directory_path(dialog_title=title)
+        return await get_file_picker().get_directory_path(dialog_title=title)
 
     async def pick_visual_concat(e):
         path = await pick_file("Select Image or Video", IMAGE_EXTS + VIDEO_EXTS)
@@ -1815,106 +1822,119 @@ async def main(page: ft.Page):
 
     center = ft.CrossAxisAlignment.CENTER
 
-    combine_content = ft.Column(
-        [
-            ft.Text("Combine Visual with Audio", size=25, weight=ft.FontWeight.BOLD),
-            ft.Divider(),
-            ft.FilledButton(
-                "Select Visual (Image/Video)",
-                on_click=pick_visual_concat,
-                style=ft.ButtonStyle(bgcolor=ft.Colors.PURPLE_400, color="black"),
-                icon=ft.Icons.IMAGE_SEARCH
-            ),
-            visual_concat_path_text,
-            ft.FilledButton(
-                "Select Audio",
-                on_click=pick_audio,
-                icon=ft.Icons.AUDIO_FILE,
-                style=ft.ButtonStyle(bgcolor=ft.Colors.DEEP_PURPLE_400, color="black")
-            ),
-            audio_path_text,
-            combine_btn,
-        ],
-        horizontal_alignment=center,
-        scroll=ft.ScrollMode.AUTO
-    )
+    def build_combine_content():
+        return ft.Column(
+            [
+                ft.Text("Combine Visual with Audio", size=25, weight=ft.FontWeight.BOLD),
+                ft.Divider(),
+                ft.FilledButton(
+                    "Select Visual (Image/Video)",
+                    on_click=pick_visual_concat,
+                    style=ft.ButtonStyle(bgcolor=ft.Colors.PURPLE_400, color="black"),
+                    icon=ft.Icons.IMAGE_SEARCH
+                ),
+                visual_concat_path_text,
+                ft.FilledButton(
+                    "Select Audio",
+                    on_click=pick_audio,
+                    icon=ft.Icons.AUDIO_FILE,
+                    style=ft.ButtonStyle(bgcolor=ft.Colors.DEEP_PURPLE_400, color="black")
+                ),
+                audio_path_text,
+                combine_btn,
+            ],
+            horizontal_alignment=center,
+            scroll=ft.ScrollMode.AUTO
+        )
 
-    compress_content = ft.Column(
-        [
-            ft.Text("Compress Videos", size=24, weight=ft.FontWeight.BOLD),
-            ft.Divider(),
-            ft.FilledButton(
-                "Select Folder",
-                on_click=pick_folder,
-                icon=ft.Icons.FOLDER,
-                style=ft.ButtonStyle(bgcolor=ft.Colors.INDIGO_400, color="black")
-            ),
-            folder_path_text,
-            compress_settings_text,
-            compress_btn,
-        ],
-        horizontal_alignment=center,
-        scroll=ft.ScrollMode.AUTO
-    )
+    def build_compress_content():
+        return ft.Column(
+            [
+                ft.Text("Compress Videos", size=24, weight=ft.FontWeight.BOLD),
+                ft.Divider(),
+                ft.FilledButton(
+                    "Select Folder",
+                    on_click=pick_folder,
+                    icon=ft.Icons.FOLDER,
+                    style=ft.ButtonStyle(bgcolor=ft.Colors.INDIGO_400, color="black")
+                ),
+                folder_path_text,
+                compress_settings_text,
+                compress_btn,
+            ],
+            horizontal_alignment=center,
+            scroll=ft.ScrollMode.AUTO
+        )
 
-    cut_content = ft.Column(
-        [
-            ft.Text("Cut Video", size=25, weight=ft.FontWeight.BOLD),
-            ft.Divider(),
-            ft.FilledButton(
-                "Select Video",
-                on_click=pick_video_for_cut,
-                icon=ft.Icons.VIDEO_FILE,
-                style=ft.ButtonStyle(bgcolor=ft.Colors.ORANGE_400, color="black")
-            ),
-            video_cut_path_text,
-            ft.Row([start_time_field, end_time_field], alignment=ft.MainAxisAlignment.CENTER, wrap=True),
-            cut_btn,
-        ],
-        horizontal_alignment=center,
-        scroll=ft.ScrollMode.AUTO
-    )
+    def build_cut_content():
+        return ft.Column(
+            [
+                ft.Text("Cut Video", size=25, weight=ft.FontWeight.BOLD),
+                ft.Divider(),
+                ft.FilledButton(
+                    "Select Video",
+                    on_click=pick_video_for_cut,
+                    icon=ft.Icons.VIDEO_FILE,
+                    style=ft.ButtonStyle(bgcolor=ft.Colors.ORANGE_400, color="black")
+                ),
+                video_cut_path_text,
+                ft.Row([start_time_field, end_time_field], alignment=ft.MainAxisAlignment.CENTER, wrap=True),
+                cut_btn,
+            ],
+            horizontal_alignment=center,
+            scroll=ft.ScrollMode.AUTO
+        )
 
-    multi_cut_content = ft.Column(
-        [
-            ft.Text("Multi-Cut", size=25, weight=ft.FontWeight.BOLD),
-            ft.Divider(),
-            ft.FilledButton(
-                "Select Videos Folder",
-                on_click=pick_multi_cut_folder,
-                icon=ft.Icons.FOLDER_SPECIAL,
-                style=ft.ButtonStyle(bgcolor=ft.Colors.CYAN_400, color="black")
-            ),
-            multi_cut_folder_path_text,
-            multi_cut_container,
-            multi_cut_btn,
-        ],
-        horizontal_alignment=center,
-        scroll=ft.ScrollMode.AUTO
-    )
+    def build_multi_cut_content():
+        return ft.Column(
+            [
+                ft.Text("Multi-Cut", size=25, weight=ft.FontWeight.BOLD),
+                ft.Divider(),
+                ft.FilledButton(
+                    "Select Videos Folder",
+                    on_click=pick_multi_cut_folder,
+                    icon=ft.Icons.FOLDER_SPECIAL,
+                    style=ft.ButtonStyle(bgcolor=ft.Colors.CYAN_400, color="black")
+                ),
+                multi_cut_folder_path_text,
+                multi_cut_container,
+                multi_cut_btn,
+            ],
+            horizontal_alignment=center,
+            scroll=ft.ScrollMode.AUTO
+        )
 
-    rename_content = ft.Column(
-        [
-            ft.Text("File Renamer", size=25, weight=ft.FontWeight.BOLD),
-            ft.Divider(),
-            ft.FilledButton(
-                "Select Folder",
-                on_click=pick_rename_folder,
-                icon=ft.Icons.FOLDER_OPEN,
-                style=ft.ButtonStyle(bgcolor=ft.Colors.BLUE_GREY_400, color="black")
-            ),
-            rename_folder_path_text,
-            ft.Divider(height=10, color=ft.Colors.TRANSPARENT),
-            ft.Text("1. Randomize File Names", size=16, color=ft.Colors.WHITE_70),
-            ft.Row([rename_length_field, rename_random_btn], alignment=ft.MainAxisAlignment.CENTER),
-            ft.Divider(height=10, color=ft.Colors.TRANSPARENT),
-            ft.Text("2. Find & Replace", size=16, color=ft.Colors.WHITE_70),
-            ft.Row([find_text_field, replace_text_field], alignment=ft.MainAxisAlignment.CENTER, wrap=True),
-            rename_find_btn,
-        ],
-        horizontal_alignment=center,
-        scroll=ft.ScrollMode.AUTO
-    )
+    def build_rename_content():
+        return ft.Column(
+            [
+                ft.Text("File Renamer", size=25, weight=ft.FontWeight.BOLD),
+                ft.Divider(),
+                ft.FilledButton(
+                    "Select Folder",
+                    on_click=pick_rename_folder,
+                    icon=ft.Icons.FOLDER_OPEN,
+                    style=ft.ButtonStyle(bgcolor=ft.Colors.BLUE_GREY_400, color="black")
+                ),
+                rename_folder_path_text,
+                ft.Divider(height=10, color=ft.Colors.TRANSPARENT),
+                ft.Text("1. Randomize File Names", size=16, color=ft.Colors.WHITE_70),
+                ft.Row([rename_length_field, rename_random_btn], alignment=ft.MainAxisAlignment.CENTER),
+                ft.Divider(height=10, color=ft.Colors.TRANSPARENT),
+                ft.Text("2. Find & Replace", size=16, color=ft.Colors.WHITE_70),
+                ft.Row([find_text_field, replace_text_field], alignment=ft.MainAxisAlignment.CENTER, wrap=True),
+                rename_find_btn,
+            ],
+            horizontal_alignment=center,
+            scroll=ft.ScrollMode.AUTO
+        )
+
+    tab_builders = [
+        build_combine_content,
+        build_compress_content,
+        build_cut_content,
+        build_multi_cut_content,
+        build_rename_content,
+    ]
 
     tab_bar = ft.TabBar(
         scrollable=True,
@@ -1930,21 +1950,41 @@ async def main(page: ft.Page):
         ],
     )
 
+    tab_slots = [ft.Container(padding=18) for _ in range(5)]
+    tab_slots[0].content = tab_builders[0]()
+
+    def ensure_tab_content(index: int):
+        slot = tab_slots[index]
+        if slot.content is None:
+            slot.content = tab_builders[index]()
+            slot.update()
+
+    def on_tab_click(e):
+        # Se construye antes de que Tabs cambie de página para no mostrar
+        # un hueco vacío durante la transición.
+        try:
+            ensure_tab_content(int(e.data))
+        except (TypeError, ValueError, IndexError):
+            pass
+
+    def on_tab_change(e):
+        try:
+            ensure_tab_content(int(e.control.selected_index))
+        except (TypeError, ValueError, IndexError):
+            pass
+
+    tab_bar.on_click = on_tab_click
+
     tab_view = ft.TabBarView(
         expand=True,
-        controls=[
-            ft.Container(content=combine_content, padding=18),
-            ft.Container(content=compress_content, padding=18),
-            ft.Container(content=cut_content, padding=18),
-            ft.Container(content=multi_cut_content, padding=18),
-            ft.Container(content=rename_content, padding=18),
-        ],
+        controls=tab_slots,
     )
 
     main_tabs = ft.Tabs(
         length=5,
         selected_index=0,
-        animation_duration=140,
+        animation_duration=0,
+        on_change=on_tab_change,
         expand=True,
         content=ft.Column([tab_bar, tab_view], expand=True, spacing=0),
     )
