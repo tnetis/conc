@@ -1,0 +1,21 @@
+[project]
+name = "conc"
+version = "0.1.0"
+description = "Utilidad de escritorio para combinar, comprimir, cortar y renombrar archivos multimedia con FFmpeg."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "flet==1.1.2",
+]
+
+[tool.flet]
+org = "com.tnetis"
+product = "conc"
+company = "tnetis"
+copyright = "Copyright © 2026 tnetis"
+artifact = "conc"
+icon_background = "#000000"
+
+[tool.flet.app]
+path = "src"
+module = "conc"

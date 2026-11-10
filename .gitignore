@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+
+# Flet / Flutter build output
+build/
+dist/
+.flet/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Logs and local test output
+*.log
