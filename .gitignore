@@ -10,6 +10,7 @@ env/
 build/
 dist/
 .flet/
+.flet-build-template/
 .flutter-plugins
 .flutter-plugins-dependencies
 

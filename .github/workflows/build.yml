@@ -98,6 +98,9 @@ jobs:
           sudo apt-get clean
           rm -f flet-version.json flet-linux-deps.txt
 
+      - name: Prepare Flet build template
+        run: python scripts/prepare_template.py --version 1.1.2
+
       - name: Build with Flet
         run: >-
           flet build ${{ matrix.target }}
@@ -106,6 +109,7 @@ jobs:
           --output build/${{ matrix.target }}
           --python-version 3.14
           --build-number ${{ github.run_number }}
+          --template .flet-build-template/extracted/build
 
       - name: Create portable archive
         run: >-
