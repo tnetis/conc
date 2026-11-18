@@ -2,7 +2,7 @@
 
 Flet 1.1.2 crea la ventana nativa a 1280x720 y, en Windows, ignora el tamano
 pedido desde Python hasta que se actualiza el control Window. Para que la
-ventana nazca ya a 430x460 se parchean los valores por defecto del runner de
+ventana nazca ya a 430x485 se parchean los valores por defecto del runner de
 Windows y de GTK en Linux.
 
 El script descarga la plantilla oficial correspondiente a la version de Flet,
@@ -19,7 +19,7 @@ import zipfile
 from pathlib import Path
 
 WINDOW_WIDTH = 430
-WINDOW_HEIGHT = 460
+WINDOW_HEIGHT = 485
 TEMPLATE_URL = (
     "https://github.com/flet-dev/flet/releases/download/"
     "v{version}/flet-build-template.zip"

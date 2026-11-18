@@ -56,7 +56,7 @@ Se mantiene porque Flet 1.1.2 exporta `Option = DropdownOption` como alias. La c
 
 ### 6. Tamaño inicial de ventana en Flet 1.1.2
 
-Flet 1.1.2 crea la ventana nativa a 1280×720 y, en Windows, ignora `page.window.width`/`height` del primer update. Se añadió un `page.window.update()` explícito al final de `main()` y, además, `scripts/prepare_template.py` parchea la plantilla oficial de build para que los runners de Windows y Linux creen la ventana directamente a 430×460. Así no hay reajuste visible al arrancar.
+Flet 1.1.2 crea la ventana nativa a 1280×720 y, en Windows, ignora `page.window.width`/`height` del primer update. Se añadió un `page.window.update()` explícito al final de `main()` y, además, `scripts/prepare_template.py` parchea la plantilla oficial de build para que los runners de Windows y Linux creen la ventana directamente a 430×485. Así no hay reajuste visible al arrancar.
 
 ## Memoria
 
@@ -123,7 +123,7 @@ La pestaña Combine escala y rellena siempre a 1920×1080. Para material vertica
 `.github/workflows/build.yml`:
 
 1. **check**: instala Flet 1.1.2, compila `src/conc.py` y ejecuta `scripts/check_flet_api.py`, que valida todos los símbolos `ft.*` usados.
-2. **build**: matriz con `windows-latest` (Windows 10/11 x64) y `ubuntu-22.04` (Linux x86_64). Instala `flet[cli]==1.1.2`, deja que Flet descargue Flutter, prepara la plantilla con `scripts/prepare_template.py` (ventana inicial 430×460) y ejecuta `flet build`. En Linux instala antes las dependencias que publica `flet --version --json`. La salida se empaqueta con `scripts/archive.py`.
+2. **build**: matriz con `windows-latest` (Windows 10/11 x64) y `ubuntu-22.04` (Linux x86_64). Instala `flet[cli]==1.1.2`, deja que Flet descargue Flutter, prepara la plantilla con `scripts/prepare_template.py` (ventana inicial 430×485) y ejecuta `flet build`. En Linux instala antes las dependencias que publica `flet --version --json`. La salida se empaqueta con `scripts/archive.py`.
 3. **release**: en tags `v*`, descarga los artefactos y crea/actualiza la release.
 
 Windows 10 y 11 comparten el mismo binario x64. El artefacto Linux se compila en Ubuntu 22.04 para mantener una glibc más antigua y mejorar compatibilidad.

@@ -88,7 +88,7 @@ conc/
 ├── .github/workflows/build.yml   # CI: check + Windows/Linux + release
 ├── pyproject.toml                # metadatos y configuración de Flet
 ├── scripts/check_flet_api.py     # validación de API antes de compilar
-├── scripts/prepare_template.py   # plantilla Flet con ventana inicial 430×460
+├── scripts/prepare_template.py   # plantilla Flet con ventana inicial 430×485
 ├── src/
 │   ├── assets/icon.png
 │   └── conc.py                   # aplicación completa
@@ -102,7 +102,7 @@ No necesitas instalar Flet ni Flutter en tu PC. El workflow `Build conc` hace to
 - **Check Python and Flet API**: instala Flet 1.1.2, compila `conc.py` y valida que todos los símbolos de Flet usados existan.
 - **Windows 10/11 x86_64**: instala `flet[cli]`, descarga Flutter automáticamente y ejecuta `flet build windows` en `windows-latest`.
 - **Linux x86_64**: instala las dependencias de sistema que publica `flet --version --json`, descarga Flutter y ejecuta `flet build linux` en `ubuntu-22.04`.
-- **Plantilla de build**: `scripts/prepare_template.py` descarga la plantilla oficial de Flet y fija la ventana inicial a 430×460 para Windows y Linux.
+- **Plantilla de build**: `scripts/prepare_template.py` descarga la plantilla oficial de Flet y fija la ventana inicial a 430×485 para Windows y Linux.
 - **Publish GitHub Release**: solo en tags `v*`.
 
 Los jobs de compilación empaquetan la salida con `scripts/archive.py` (ZIP en Windows, tar.gz en Linux) y suben un único archivo por plataforma. La primera ejecución tarda más porque Flutter se descarga dentro del runner.

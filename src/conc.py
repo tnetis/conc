@@ -242,7 +242,7 @@ async def main(page: ft.Page):
     page.title = "conc"
     page.theme_mode = ft.ThemeMode.DARK
     page.window.width = 430
-    page.window.height = 460
+    page.window.height = 485
     page.bgcolor = "black"
 
     ui_loop = asyncio.get_running_loop()
@@ -2003,7 +2003,7 @@ async def main(page: ft.Page):
     # width/height del primer update. Un update explicito del control Window
     # aplica el tamano; despues la centramos.
     page.window.width = 430
-    page.window.height = 460
+    page.window.height = 485
     page.window.update()
 
     res = page.window.center()
